@@ -2,7 +2,10 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
-    _id: { // the _ before id means, this is the only id and mongoos will not create auto id.
+    /**
+     * Unique user ID (manual). Mongoose will not auto-generate _id.
+     */
+    _id: {
         type: String,
         required: true
     },
