@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const path = require('path');
 const Cost = require('../models/costs');
 const User = require('../models/users');
 
@@ -12,7 +13,7 @@ router.post('/add', (req, res) => {
         category,
         userid,
         sum,
-        date // אם לא נשלח, המודל ישלים לבד עם default
+        date
     });
 
     newCost.save()
@@ -66,3 +67,43 @@ router.get('/report', (req, res) => {
         });
 });
 
+// GET /api/users/:id
+router.get('/users/:id', (req, res) => {
+    const userId = req.params.id;
+
+    User.findById(userId)
+        .then(user => {
+            if (!user) {
+                return res.status(404).json({ error: 'User not found' });
+            }
+
+            Cost.aggregate([
+                { $match: { userid: userId } },
+                { $group: { _id: null, total: { $sum: '$sum' } } }
+            ])
+                .then(result => {
+                    const total = result.length > 0 ? result[0].total : 0;
+
+                    res.json({
+                        id: user._id,
+                        first_name: user.first_name,
+                        last_name: user.last_name,
+                        total: total
+                    });
+                })
+                .catch(err => {
+                    res.status(500).json({ error: err.message });
+                });
+        })
+        .catch(err => {
+            res.status(500).json({ error: err.message });
+        });
+});
+
+// GET /api/about
+router.get('/about', (req, res) => {
+    const teamPath = path.join(__dirname, '../public/data/team.json');
+    res.sendFile(teamPath);
+});
+
+module.exports = router;
