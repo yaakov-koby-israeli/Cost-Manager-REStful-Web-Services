@@ -7,7 +7,7 @@ const CostSchema = new Schema({
         required: true
     },
     category: {
-        type: String, // "food", "health", "housing", "sport", "education"
+        type: String,
         enum: ['food', 'health', 'housing', 'sport', 'education'],
         required: true
     },
@@ -21,9 +21,9 @@ const CostSchema = new Schema({
     },
     date: {
         type: Date,
-        default: Date.now // אם לא מגיע מהלקוח, יתווסף אוטומטית
+        default: Date.now
     }
 });
-const Cost = mongoose.model('costs', CostSchema); // מחזירה רפרנס לאובייקט שהוא בעצם קונסטרקטור פאנקשן
+const Cost = mongoose.model('costs', CostSchema);
 
 module.exports = Cost;
