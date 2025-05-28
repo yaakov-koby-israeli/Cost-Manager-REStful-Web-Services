@@ -8,6 +8,12 @@ const User = require('../models/users');
 router.post('/add', (req, res) => {
     const { description, category, userid, sum, date } = req.body;
 
+    // data validation
+    if (!description || !category || !userid || !sum ) {
+        return res.status(400).json({error: 'Missing one or more from the required query parameters: description, category, userid or sum '});
+    }
+
+    // if exists create cost
     const newCost = new Cost({
         description,
         category,
@@ -16,21 +22,25 @@ router.post('/add', (req, res) => {
         date
     });
 
-    newCost.save()
+    return newCost.save()
         .then(savedCost => {
             res.status(201).json(savedCost);
         })
-        .catch(err => {
-            res.status(400).json({ error: err.message });
-        });
+
+    .catch(err => {
+        res.status(500).json({ error: err.message });
+    });
 });
 
 // GET /api/report?id=XXX&year=YYYY&month=MM
 router.get('/report', (req, res) => {
-    const { id, year, month } = req.query;
+    const {id, year, month} = req.query;
 
+    console.log('ID received:', req.query.id, typeof req.query.id);
+
+    // data validation
     if (!id || !year || !month) {
-        return res.status(400).json({ error: 'Missing required query parameters: id, year, month' });
+        return res.status(400).json({error: 'Missing one or more from the required query parameters: id, year or month'});
     }
 
     const startDate = new Date(year, month - 1, 1);
@@ -38,7 +48,7 @@ router.get('/report', (req, res) => {
 
     Cost.find({
         userid: id,
-        date: { $gte: startDate, $lt: endDate }
+        date: {$gte: startDate, $lt: endDate}
     })
         .then(costs => {
             const categories = ['food', 'health', 'housing', 'sport', 'education'];
@@ -63,7 +73,7 @@ router.get('/report', (req, res) => {
             });
         })
         .catch(err => {
-            res.status(500).json({ error: err.message });
+            res.status(500).json({error: err.message});
         });
 });
 
@@ -71,15 +81,15 @@ router.get('/report', (req, res) => {
 router.get('/users/:id', (req, res) => {
     const userId = req.params.id;
 
-    User.findById(userId)
+    User.findOne({ id: id.toString() })
         .then(user => {
             if (!user) {
-                return res.status(404).json({ error: 'User not found' });
+                return res.status(404).json({error: 'User not found'});
             }
 
             Cost.aggregate([
-                { $match: { userid: userId } },
-                { $group: { _id: null, total: { $sum: '$sum' } } }
+                {$match: {userid: userId}},
+                {$group: {_id: null, total: {$sum: '$sum'}}}
             ])
                 .then(result => {
                     const total = result.length > 0 ? result[0].total : 0;
@@ -92,18 +102,18 @@ router.get('/users/:id', (req, res) => {
                     });
                 })
                 .catch(err => {
-                    res.status(500).json({ error: err.message });
+                    res.status(500).json({error: err.message});
                 });
         })
         .catch(err => {
-            res.status(500).json({ error: err.message });
+            res.status(500).json({error: err.message});
         });
 });
 
 // GET /api/about
-router.get('/about', (req, res) => {
-    const teamPath = path.join(__dirname, '../public/data/team.json');
-    res.sendFile(teamPath);
-});
+    router.get('/about', (req, res) => {
+        const teamPath = path.join(__dirname, '../public/data/team.json');
+        res.sendFile(teamPath);
+    });
 
 module.exports = router;
