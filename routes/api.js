@@ -79,14 +79,17 @@ router.get('/report', (req, res) => {
 
 // GET /api/users/:id
 router.get('/users/:id', (req, res) => {
+
     const userId = req.params.id;
 
-    User.findOne({ id: id.toString() })
+    // check if user exist
+    User.findOne({ id: userId.toString() })
         .then(user => {
             if (!user) {
                 return res.status(404).json({error: 'User not found'});
             }
 
+            // calc of user total costs
             Cost.aggregate([
                 {$match: {userid: userId}},
                 {$group: {_id: null, total: {$sum: '$sum'}}}
@@ -94,8 +97,9 @@ router.get('/users/:id', (req, res) => {
                 .then(result => {
                     const total = result.length > 0 ? result[0].total : 0;
 
+                    // return data
                     res.json({
-                        id: user._id,
+                        id: user.id,
                         first_name: user.first_name,
                         last_name: user.last_name,
                         total: total
