@@ -37,7 +37,7 @@ router.post('/add', (req, res) => {
     const newCost = new Cost({
         description,
         category,
-        userid,
+        userid: Number(userid),
         sum,
         date
     });
@@ -79,13 +79,16 @@ router.get('/report', (req, res) => {
         return res.status(400).json({error: 'Missing one or more from the required query parameters: id, year or month'});
     }
 
+    //convert id to Number
+    const userId = Number(id);
+
     // Create the date range for the specified month
     const startDate = new Date(year, month - 1, 1); // First day of the month
     const endDate = new Date(year, month, 1); // First day of the next month
 
     // Find all cost records for the user within the given month
     Cost.find({
-        userid: id,
+        userid: userId,
         date: {$gte: startDate, $lt: endDate}
     })
         .then(costs => {
@@ -107,7 +110,7 @@ router.get('/report', (req, res) => {
 
             // Send the structured response back to the client
             res.json({
-                userid: id,
+                userid: userId,
                 year: parseInt(year),
                 month: parseInt(month),
                 costs: costsArray
@@ -141,10 +144,10 @@ router.get('/report', (req, res) => {
  */
 router.get('/users/:id', (req, res) => {
 
-    const userId = req.params.id;
+    const userId = Number(req.params.id);
 
     // check if user exist
-    User.findOne({ id: userId.toString() })
+    User.findOne({ id: userId })
         .then(user => {
             if (!user) {
                 return res.status(404).json({error: 'User not found'});
@@ -152,7 +155,7 @@ router.get('/users/:id', (req, res) => {
 
             Cost.aggregate([
                 // filter data by user
-                {$match: {userid: userId}},
+                {$match: { userid: userId } },
                 // group data by userID and calc the sum
                 {$group: {_id: null, total: {$sum: '$sum'}}}
             ])
