@@ -17,8 +17,8 @@ const app = express();
 // connect to mongoose
 //mongoose.connect('mongodb://localhost:27017/cost-manager');
 mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('✅ Connected to MongoDB Atlas: CostManagerDB'))
-    .catch(err => console.error('❌ MongoDB connection error:', err));
+    .then(() => console.log('Connected to MongoDB Atlas: CostManagerDB'))
+    .catch(err => console.error('MongoDB connection error:', err));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
