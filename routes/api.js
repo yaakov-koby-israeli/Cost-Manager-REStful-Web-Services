@@ -28,28 +28,40 @@ router.post('/add', (req, res) => {
 
     const { description, category, userid, sum, date } = req.body;
 
-    // data validation
+// data validation
     if (!description || !category || !userid || !sum ) {
-        return res.status(400).json({error: 'Missing one or more from the required query parameters: description, category, userid or sum '});
+        return res.status(400).json({ error: 'Missing one or more from the required query parameters: description, category, userid or sum' });
     }
 
-    // if exists create cost
-    const newCost = new Cost({
-        description,
-        category,
-        userid: Number(userid),
-        sum,
-        date
-    });
+// check if user exists
+    User.findOne({ id: Number(userid) })
+        .then(user => {
+            if (!user) {
+                res.status(404).json({ error: 'User not found' });
+                return;
+            }
 
-    // Attempts to save the new cost to the database.
-    return newCost.save()
-        .then(savedCost => {
-            res.status(201).json(savedCost);
+            // create new cost schema
+            const newCost = new Cost({
+                description,
+                category,
+                userid: Number(userid),
+                sum,
+                date
+            });
+
+            // Attempts to save the new cost to the database.
+            return newCost.save()
+                .then(savedCost => {
+                    res.status(201).json(savedCost);
+                })
+                .catch(err => {
+                    res.status(500).json({ error: err.message });
+                });
         })
-    .catch(err => {
-        res.status(500).json({ error: err.message });
-    });
+        .catch(err => {
+            res.status(500).json({ error: err.message });
+        });
 });
 
 /**
@@ -67,57 +79,68 @@ router.post('/add', (req, res) => {
  * @returns {400} If any of the required query parameters are missing
  * @returns {500} If a server/database error occurs
  */
-
 router.get('/report', (req, res) => {
 
-    const {id, year, month} = req.query;
+    const { id, year, month } = req.query;
 
     console.log('ID received:', req.query.id, typeof req.query.id);
 
     // Validate that all required query parameters are present
     if (!id || !year || !month) {
-        return res.status(400).json({error: 'Missing one or more from the required query parameters: id, year or month'});
+        return res.status(400).json({ error: 'Missing one or more from the required query parameters: id, year or month' });
     }
 
-    //convert id to Number
+    // convert id to Number
     const userId = Number(id);
 
-    // Create the date range for the specified month
-    const startDate = new Date(year, month - 1, 1); // First day of the month
-    const endDate = new Date(year, month, 1); // First day of the next month
+    // check if user exists
+    User.findOne({ id: userId })
+        .then(user => {
+            if (!user) {
+                res.status(404).json({ error: 'User not found' });
+                return; // עוצרים כאן אם לא קיים
+            }
 
-    // Find all cost records for the user within the given month
-    Cost.find({
-        userid: userId,
-        date: {$gte: startDate, $lt: endDate}
-    })
-        .then(costs => {
-            // Define the fixed categories to group by
-            const categories = ['food', 'health', 'housing', 'sport', 'education'];
+            // Create the date range for the specified month
+            const startDate = new Date(year, month - 1, 1); // First day of the month
+            const endDate = new Date(year, month, 1); // First day of the next month
 
-            // Build an array of cost entries grouped by category
-            const costsArray = categories.map(category => {
-                return {
-                    [category]: costs
-                        .filter(c => c.category === category)
-                        .map(c => ({
-                            sum: c.sum,
-                            description: c.description,
-                            day: c.date.getDate()
-                        }))
-                };
-            });
-
-            // Send the structured response back to the client
-            res.json({
+            // Find all cost records for the user within the given month
+            Cost.find({
                 userid: userId,
-                year: parseInt(year),
-                month: parseInt(month),
-                costs: costsArray
-            });
+                date: { $gte: startDate, $lt: endDate }
+            })
+                .then(costs => {
+                    // Define the fixed categories to group by
+                    const categories = ['food', 'health', 'housing', 'sport', 'education'];
+
+                    // Build an array of cost entries grouped by category
+                    const costsArray = categories.map(category => {
+                        return {
+                            [category]: costs
+                                .filter(c => c.category === category)
+                                .map(c => ({
+                                    sum: c.sum,
+                                    description: c.description,
+                                    day: c.date.getDate()
+                                }))
+                        };
+                    });
+
+                    // Send the structured response back to the client
+                    res.json({
+                        userid: userId,
+                        year: parseInt(year),
+                        month: parseInt(month),
+                        costs: costsArray
+                    });
+                })
+                .catch(err => {
+                    res.status(500).json({ error: err.message });
+                });
         })
         .catch(err => {
-            res.status(500).json({error: err.message});
+            res.status(500).json({ error: err.message });
         });
 });
 
