@@ -3,10 +3,10 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+require('dotenv').config();
 
 // mongoose
 const mongoose = require('mongoose');
-//mongoose.Promise = global.Promise;
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
@@ -14,11 +14,9 @@ const apiRouter = require('./routes/api');
 
 const app = express();
 
-// db pass: L6Z57Zu8CgwTCOzF userName: kobyisr1
-
 // connect to mongoose
 //mongoose.connect('mongodb://localhost:27017/cost-manager');
-mongoose.connect('mongodb+srv://kobyisr1:L6Z57Zu8CgwTCOzF@costmanagerdb.qpfbap0.mongodb.net/CostManagerDB?retryWrites=true&w=majority&appName=CostManagerDB')
+mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log('✅ Connected to MongoDB Atlas: CostManagerDB'))
     .catch(err => console.error('❌ MongoDB connection error:', err));
 
