@@ -14,8 +14,13 @@ const apiRouter = require('./routes/api');
 
 const app = express();
 
+// db pass: L6Z57Zu8CgwTCOzF userName: kobyisr1
+
 // connect to mongoose
-mongoose.connect('mongodb://localhost:27017/cost-manager');
+//mongoose.connect('mongodb://localhost:27017/cost-manager');
+mongoose.connect('mongodb+srv://kobyisr1:L6Z57Zu8CgwTCOzF@costmanagerdb.qpfbap0.mongodb.net/CostManagerDB?retryWrites=true&w=majority&appName=CostManagerDB')
+    .then(() => console.log('✅ Connected to MongoDB Atlas: CostManagerDB'))
+    .catch(err => console.error('❌ MongoDB connection error:', err));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
