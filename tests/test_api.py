@@ -3,8 +3,27 @@ import requests
 BASE_URL = "http://localhost:3000"
 
 def test_get_about():
-    response = requests.get(f"{BASE_URL}/about")
-    assert response.status_code == 200
+    # Send GET request to /about
+      response = requests.get(f"{BASE_URL}/api/about")
+
+      # Verify that status code is 200 OK
+      assert response.status_code == 200
+
+      # Verify that Content-Type is JSON
+      assert 'application/json' in response.headers['Content-Type']
+
+      # Parse the response body as JSON
+      data = response.json()
+
+      # Verify that the response is a list
+      assert isinstance(data, list)
+
+      # Verify that the list contains exactly 2 items
+      assert len(data) == 2
+
+      # Verify the exact content of the list
+      assert data[0] == { "first_name": "Yaakov", "last_name": "Israeli" }
+      assert data[1] == { "first_name": "Koren", "last_name": "Abugov" }
 
 def test_get_user_exists():
     # assuming user 123123 exists
