@@ -13,7 +13,6 @@ const apiRouter = require('./routes/api');
 const app = express();
 
 // connect to mongoose
-//mongoose.connect('mongodb://localhost:27017/cost-manager');
 mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log('Connected to MongoDB Atlas: CostManagerDB'))
     .catch(err => console.error('MongoDB connection error:', err));
