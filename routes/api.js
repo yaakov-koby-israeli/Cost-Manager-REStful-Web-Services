@@ -1,3 +1,9 @@
+/**
+ * API routes for Cost Manager service.
+ * Provides endpoints to add costs, generate user reports, retrieve user details, and serve team info.
+ * @module routes/api
+ */
+
 const express = require('express');
 const router = express.Router();
 const path = require('path');
@@ -98,7 +104,7 @@ router.get('/report', (req, res) => {
         .then(user => {
             if (!user) {
                 res.status(404).json({ error: 'User not found' });
-                return; // עוצרים כאן אם לא קיים
+                return;
             }
 
             // Create the date range for the specified month

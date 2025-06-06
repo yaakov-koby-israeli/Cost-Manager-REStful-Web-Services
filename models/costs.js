@@ -1,3 +1,9 @@
+/**
+ * Cost model schema.
+ * Represents a cost item with description, category, user ID, sum, and date.
+ * @module models/Cost
+ */
+
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 

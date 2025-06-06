@@ -1,3 +1,9 @@
+/**
+ * User model schema.
+ * Represents a user with ID, first name, last name, birthday, and marital status.
+ * @module models/User
+ */
+
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
