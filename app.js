@@ -25,12 +25,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-// health check route - useful for Render and manual checks
-app.get('/', (req, res) => {
-  res.json({ status: 'OK', message: 'CostManager API is running 🚀' });
-});
-
-app.use('/api', apiRouter);
+app.use('/api', apiRouter);// connect to api route
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
