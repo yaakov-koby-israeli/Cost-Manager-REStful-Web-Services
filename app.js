@@ -1,15 +1,18 @@
+/**
+ * @file app.js
+ * Main Express app for Cost Manager API.
+ * Connects to MongoDB, sets up middleware, routes, and error handling.
+ */
+
 const createError = require('http-errors');
 const express = require('express');
-const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 require('dotenv').config();
 
 // mongoose
 const mongoose = require('mongoose');
-
 const apiRouter = require('./routes/api');
-
 const app = express();
 
 // connect to mongoose
